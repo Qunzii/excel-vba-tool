@@ -1,0 +1,62 @@
+Sub main()
+
+Dim arr_bot As Variant, arr_ver As Variant, arr_PWRT_Temperature As Variant, arr_PWRT_Weather As Variant, arr_PWRT_City As Variant, arr_PWRT_Day As Variant, arr_PWRT_CI As Variant
+Dim arr_PWRT_MaxT As Variant, arr_PWRT_MinT As Variant, arr_PWRT_Pop As Variant, arr_PWRT_Wx As Variant, arr_GNL_ClearMemory As Variant
+Dim arr_target As Variant
+Dim i As Variant
+Dim targetRow As Integer
+Dim columnNumber As Long, columnElements As Long, counter As Integer
+Dim commonArr() As String
+
+targetRow = Sheets("Intent_Test").Cells(Rows.count, 3).End(xlUp).Row
+
+entityRow = Sheets("Entity_WRT").Cells(Rows.count, 1).End(xlUp).Row
+
+arr_target = target
+
+'compare with dynamic array and replace the key value
+For y = 0 To UBound(arr_target)
+    Sheets("Intent_Test").Cells(y + 2, 4) = arr_target(y)
+
+    For dynamicArray = 2 To entityRow
+        columnNumber = Sheets("Entity_WRT").Cells(dynamicArray, Columns.count).End(xlToLeft).Column
+        c = columnNumber - 1
+        ReDim commonArr(c)
+        counter = 0
+        For columnElements = 1 To columnNumber
+            commonArr(counter) = Sheets("Entity_WRT").Cells(dynamicArray, columnElements).Value
+            counter = counter + 1
+        Next columnElements
+        
+        For x = 2 To UBound(commonArr)
+            If InStr(Sheets("Intent_Test").Cells(y + 2, 3), commonArr(x)) <> 0 Then
+                Sheets("Intent_Test").Cells(y + 2, 4) = WorksheetFunction.Substitute(Sheets("Intent_Test").Cells(y + 2, 4), commonArr(x), commonArr(0))
+            End If
+        Next x
+    Next dynamicArray
+Next y
+
+p = Sheets("Intent_Test").Cells(Rows.count, 4).End(xlUp).Row
+Dim arr_string_process() As String
+
+ReDim arr_string_process(p - 1)
+
+For asp = 0 To p - 1
+    'trim non-key-value
+    arr_string_process(asp) = Sheets("Intent_Test").Cells(asp + 2, 4)
+    Sheets("Intent_Test").Cells(asp + 2, 4) = Replace(trim(arr_string_process(asp)), "][", "]/[")
+    
+    'distinct row value
+    arr_string_process(asp) = Sheets("Intent_Test").Cells(asp + 2, 4)
+    Sheets("Intent_Test").Cells(asp + 2, 4) = rowRepeat(arr_string_process(asp))
+    
+    'distinct column value
+    arr_string_process(asp) = Sheets("Intent_Test").Cells(asp + 2, 4)
+    Sheets("Intent_Test").Cells(asp + 2, 4) = EX(arr_string_process(asp))
+    
+    'adjust form of value
+    arr_string_process(asp) = Sheets("Intent_Test").Cells(asp + 2, 4)
+    Sheets("Intent_Test").Cells(asp + 2, 4) = adjust(arr_string_process(asp))
+Next asp
+
+End Sub
